@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsp_data>
+ <show>
+  <location>
+   Panic en la Playa Doce
+  </location>
+  <date>
+   March 24, 2024
+  </date>
+  <setlist>
+   <song>
+    song 1
+   </song>
+   <song>
+    song 2
+   </song>
+   <song>
+    song 3
+   </song>
+  </setlist>
+ </show>
+ <show>
+  <location>
+   Fox Theater Atlanta
+  </location>
+  <date>
+   December 31, 2024
+  </date>
+  <setlist>
+   <song>
+    song 1
+   </song>
+   <song>
+    song 2
+   </song>
+   <song>
+    song 3
+   </song>
+  </setlist>
+ </show>
+</wsp_data>
