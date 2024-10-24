@@ -134,7 +134,6 @@ def plot_song_distribution_across_locations_bar(df, top_n=20):
     #plt.show()
 
 # Plot 4: Song repetition over time
-#def plot_song_repetition_over_time(df, song_name):
 def plot_song_repetition_over_time(df):
     # Create a list to track whether the song was played at each show
     song_name = 'Disco'
@@ -164,29 +163,7 @@ def plot_most_popular_closing_songs(df):
     plt.xticks(rotation=45)
     plt.tight_layout()
 
-# Plot 6: Song frequency
-def plot_song_frequency_histogram(df):
-    all_songs = [song for setlist in df['setlist'] for song in setlist]
-    song_counts = Counter(all_songs)
-
-    # Get top 20 songs
-    top_20_songs = song_counts.most_common(20)
-    
-    # Get the song names and the number of times they were played
-    song_names, play_counts = zip(*top_20_songs)
-    
-    plt.figure(figsize=(12, 8))  # Adjust size for readability
-    plt.bar(song_names, play_counts, color='purple', edgecolor='black')
-    plt.xlabel('Songs')
-    plt.ylabel('Number of Times Played')
-    plt.title('Top 20 Most Frequently Played Songs')
-
-    # Rotate the x-axis labels for better readability
-    plt.xticks(rotation=90)
-    
-    plt.tight_layout()
-
-# Plot 7: Most popular opening songs
+# Plot 6: Most popular opening songs
 def plot_most_frequent_opening_songs(df):
     opening_songs = [setlist[0] for setlist in df['setlist'] if setlist]  # Get first song from each setlist
     opening_song_counts = Counter(opening_songs).most_common(10)
@@ -201,7 +178,7 @@ def plot_most_frequent_opening_songs(df):
     plt.xticks(rotation=45)
     plt.tight_layout()
 
-# Plot 8: Number of songs per show over time
+# Plot 7: Number of songs per show over time
 def plot_num_songs_trend_over_time(df):
     df['date'] = pd.to_datetime(df['date'])
     df_sorted = df.sort_values('date')
@@ -214,18 +191,36 @@ def plot_num_songs_trend_over_time(df):
     plt.xticks(rotation=45)
     plt.tight_layout()
 
-# Plot 9: Number of shows per location heat map
-def plot_shows_heatmap(df):
+# Plot 8: Number of shows per location heat map
+def plot_shows_heatmap(df, top_n=20):
+    # Add month column to the DataFrame
     df['month'] = pd.to_datetime(df['date']).dt.month
+
+    # Group by location and month and count shows
     location_month_counts = df.groupby(['location', 'month']).size().unstack(fill_value=0)
 
-    plt.figure(figsize=(12, 8))
-    sns.heatmap(location_month_counts, annot=True, cmap='coolwarm', fmt='d')
-    plt.title('Number of Shows by Location and Month')
+    # Limit to top N locations based on total number of shows
+    top_locations = location_month_counts.sum(axis=1).nlargest(top_n).index
+    location_month_counts = location_month_counts.loc[top_locations]
+
+    # Set up the figure size and adjust aspect ratio
+    plt.figure(figsize=(14, 8))
+
+    # Generate heatmap with rotated x-ticks, smaller font for y-axis, and adjusted color scaling
+    sns.heatmap(location_month_counts, annot=True, cmap='coolwarm', fmt='d', linewidths=.5, linecolor='white')
+
+    # Rotate x-ticks for months
+    plt.xticks(rotation=45)
+
+    # Set title and axis labels
+    plt.title('Number of Shows by Location and Month (Top Locations)')
     plt.xlabel('Month')
     plt.ylabel('Location')
 
-# Plot 10: Least frequently played songs
+    # Tight layout for better spacing
+    plt.tight_layout()
+
+# Plot 9: Least frequently played songs
 def plot_least_frequent_songs(df):
     num_songs = 20
     all_songs = [song for setlist in df['setlist'] for song in setlist]
@@ -241,11 +236,11 @@ def plot_least_frequent_songs(df):
         plt.xlabel('Song')
         plt.ylabel('Number of Times Played')
         plt.title(f'Top {num_songs} Least Frequently Played')
-        plt.xticks(rotation=45)
+        plt.xticks(rotation=90)
         plt.tight_layout()
 
-# Plot 11: Most popular cover songs
-def plot_popular_cover_songs(cover_song_counts, top_n=10):
+# Plot 10: Most popular cover songs
+def plot_popular_cover_songs(cover_song_counts, top_n=20):
     most_common_covers = cover_song_counts.most_common(top_n)
     if most_common_covers:
         song_names, play_counts = zip(*most_common_covers)
@@ -255,10 +250,10 @@ def plot_popular_cover_songs(cover_song_counts, top_n=10):
         plt.xlabel('Cover Songs')
         plt.ylabel('Number of Times Played')
         plt.title(f'Top {top_n} Most Frequently Played Cover Songs')
-        plt.xticks(rotation=45)
+        plt.xticks(rotation=90)
         plt.tight_layout()
 
-# Plot 12: Least popular cover song
+# Plot 11: Least popular cover song
 def plot_least_popular_cover_songs(cover_song_counts):
     num_songs = 20
     least_common_covers = cover_song_counts.most_common()[:-num_songs-1:-1]
@@ -383,13 +378,12 @@ def get_last_three_show_dates(df):
     return last_three_show_dates
 
 def get_date_code(curr_date, last_three_show_dates):
-    count = 1
-
-    for date in last_three_show_dates:
-        if date in last_three_show_dates:
-            return count
+    for i in range(3):
+        if curr_date in last_three_show_dates[i]:
+            print(last_three_show_dates)
+            return i + 1
         
-    return count == 0
+    return 0
 
 # Create Excel file with all cover song data
 def create_excel_with_cover_songs(df, cover_songs):
@@ -420,6 +414,7 @@ def create_excel_with_cover_songs(df, cover_songs):
                 })
 
     cover_song_df = pd.DataFrame(all_rows)
+    cover_song_df['Date'] = pd.to_datetime(cover_song_df['Date'], errors='coerce')
 
     # Count how many times each song was played
     song_counter = Counter(cover_song_df['Song'])
@@ -438,7 +433,7 @@ def create_excel_with_cover_songs(df, cover_songs):
         ws.append(row)
 
     # Save the Excel workbook
-    wb.save('cover_songs_data.xlsx')
+    wb.save('all_songs_data.xlsx')
 
 
 if __name__ == "__main__":
@@ -488,25 +483,22 @@ if __name__ == "__main__":
     plot_most_popular_closing_songs(df)
 
     # Plot 6
-    #plot_song_frequency_histogram(df)
-
-    # Plot 7
     plot_most_frequent_opening_songs(df)
 
-    # Plot 8
+    # Plot 7
     plot_num_songs_trend_over_time(df)
 
-    # Plot 9
-    plot_shows_heatmap(df)
+    # Plot 8
+    plot_shows_heatmap(df, top_n=20)
 
-    # Plot 10
+    # Plot 9
     plot_least_frequent_songs(df)
 
-    # Plot 11 
+    # Plot 10 
     cover_song_counts = get_cover_song_stats(df, cover_songs)
-    plot_popular_cover_songs(cover_song_counts, top_n=10)
+    plot_popular_cover_songs(cover_song_counts, top_n=20)
 
-    # Plot 12
+    # Plot 11
     plot_least_popular_cover_songs(cover_song_counts)
 
     #plot_us_map_with_locations(df)
