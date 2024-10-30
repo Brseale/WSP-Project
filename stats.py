@@ -380,7 +380,6 @@ def get_last_three_show_dates(df):
 def get_date_code(curr_date, last_three_show_dates):
     for i in range(3):
         if curr_date in last_three_show_dates[i]:
-            print(last_three_show_dates)
             return i + 1
         
     return 0
