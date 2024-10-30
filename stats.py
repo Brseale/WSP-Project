@@ -434,6 +434,10 @@ def create_excel_with_cover_songs(df, cover_songs):
     # Save the Excel workbook
     wb.save('all_songs_data.xlsx')
 
+def get_html_from_excel_table(file, excel_sheet_name):
+    df = pd.read_excel(file, sheet_name=excel_sheet_name)
+    df.to_html('song_table.html', index=False)
+
 
 if __name__ == "__main__":
 
@@ -448,7 +452,11 @@ if __name__ == "__main__":
     # Create a DataFrame from the shows
     df = create_dataframe(shows)
 
-    create_excel_with_cover_songs(df, cover_songs)
+    # create_excel_with_cover_songs(df, cover_songs)
+
+    excel_file = 'excel_files/WSP_All_Show_Data.xlsx'
+    sheet_name = 'All_Song_Data'
+    get_html_from_excel_table(excel_file, sheet_name)
 
     #create_excel_with_show_data(df)
 
