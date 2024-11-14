@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import pandas as pd
+import plotly.express as px
 from collections import Counter
 import seaborn as sns
 from geopy.geocoders import Nominatim
@@ -118,6 +119,27 @@ def plot_most_frequent_songs(df):
     plt.xticks(rotation=45)
     plt.tight_layout()
     #plt.show()
+
+def plot_most_frequent_songs_html(df):
+    # Flatten all setlists into a single list of songs
+    all_songs = [song for setlist in df['setlist'] for song in setlist]
+    
+    # Use Counter to get the frequency of each song
+    song_counter = Counter(all_songs)
+    
+    # Get the top 20 most frequently played songs
+    most_common_songs = song_counter.most_common(20)
+    song_names, song_counts = zip(*most_common_songs)
+    
+    # Create a DataFrame for Plotly
+    data = pd.DataFrame({'Song': song_names, 'Plays': song_counts})
+    
+    # Generate Plotly figure
+    fig = px.bar(data, x='Song', y='Plays', title='Top 20 Most Frequently Played Songs')
+    fig.update_layout(xaxis_title="Song", yaxis_title="Number of Plays")
+    
+    # Save HTML file for embedding in Django
+    fig.write_html("templates/most_frequent_songs.html")
 
 # Plot 3: Top 20 locations by number of shows
 def plot_song_distribution_across_locations_bar(df, top_n=20):
@@ -451,12 +473,13 @@ if __name__ == "__main__":
 
     # Create a DataFrame from the shows
     df = create_dataframe(shows)
+    plot_most_frequent_songs_html(df)
 
     # create_excel_with_cover_songs(df, cover_songs)
 
-    excel_file = 'excel_files/WSP_All_Show_Data.xlsx'
-    sheet_name = 'All_Song_Data'
-    get_html_from_excel_table(excel_file, sheet_name)
+    # excel_file = 'excel_files/WSP_All_Show_Data.xlsx'
+    # sheet_name = 'All_Song_Data'
+    # get_html_from_excel_table(excel_file, sheet_name)
 
     #create_excel_with_show_data(df)
 
@@ -474,42 +497,42 @@ if __name__ == "__main__":
     # Export plots to Excel
     #export_plots_to_excel(plot_files)
 
-    # Plot 1
-    plot_num_songs_per_show(df)
+    # # Plot 1
+    # plot_num_songs_per_show(df)
 
-    # Plot 2
-    plot_most_frequent_songs(df)
+    # # Plot 2
+    # plot_most_frequent_songs(df)
 
-    # Plot 3
-    plot_song_distribution_across_locations_bar(df, top_n=20)
+    # # Plot 3
+    # plot_song_distribution_across_locations_bar(df, top_n=20)
 
-    # Plot 4
-    plot_song_repetition_over_time(df)
+    # # Plot 4
+    # plot_song_repetition_over_time(df)
 
-    # Plot 5
-    plot_most_popular_closing_songs(df)
+    # # Plot 5
+    # plot_most_popular_closing_songs(df)
 
-    # Plot 6
-    plot_most_frequent_opening_songs(df)
+    # # Plot 6
+    # plot_most_frequent_opening_songs(df)
 
-    # Plot 7
-    plot_num_songs_trend_over_time(df)
+    # # Plot 7
+    # plot_num_songs_trend_over_time(df)
 
-    # Plot 8
-    plot_shows_heatmap(df, top_n=20)
+    # # Plot 8
+    # plot_shows_heatmap(df, top_n=20)
 
-    # Plot 9
-    plot_least_frequent_songs(df)
+    # # Plot 9
+    # plot_least_frequent_songs(df)
 
-    # Plot 10 
-    cover_song_counts = get_cover_song_stats(df, cover_songs)
-    plot_popular_cover_songs(cover_song_counts, top_n=20)
+    # # Plot 10 
+    # cover_song_counts = get_cover_song_stats(df, cover_songs)
+    # plot_popular_cover_songs(cover_song_counts, top_n=20)
 
-    # Plot 11
-    plot_least_popular_cover_songs(cover_song_counts)
+    # # Plot 11
+    # plot_least_popular_cover_songs(cover_song_counts)
 
-    #plot_us_map_with_locations(df)
+    # #plot_us_map_with_locations(df)
 
-    plt.show()
+    # plt.show()
 
     #/Users/brooksseale/Desktop/WSP/ne_110m_admin_0_countries/ne_110m_admin_0_countries.shp
